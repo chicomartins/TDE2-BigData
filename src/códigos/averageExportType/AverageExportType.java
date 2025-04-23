@@ -1,5 +1,6 @@
-package códigos;
+package códigos.averageExportType;
 
+import códigos.averageYearBrazil.BrazilAvgWritable;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.FloatWritable;
@@ -14,28 +15,28 @@ import org.apache.hadoop.util.GenericOptionsParser;
 import org.apache.log4j.BasicConfigurator;
 
 import java.io.IOException;
+import java.text.DecimalFormat;
 
-public class Teste {
-    public static void main(String[] args) throws Exception {
+public class AverageExportType {
+    public static void main(String[] args) throws IOException, InterruptedException, ClassNotFoundException {
         BasicConfigurator.configure();
         Configuration c = new Configuration();
         String[] files = new GenericOptionsParser(c, args).getRemainingArgs();
 
         Path input = new Path("in/operacoes_comerciais_inteira.csv");
-        Path output = new Path("output/teste.txt");
+        Path output = new Path("output/media-exportacoes-brasil.txt");
 
-        Job j = new Job(c, "wordcountBible");
+        Job j = new Job(c, "AverageExportType");
 
-        j.setJarByClass(Teste.class);
-        j.setMapperClass(Teste.Map.class);
-        j.setReducerClass(Teste.Reduce.class);
+        j.setJarByClass(AverageExportType.class);
+        j.setMapperClass(AverageExportType.Map.class);
+        j.setReducerClass(AverageExportType.Reduce.class);
 
         j.setMapOutputKeyClass(Text.class);
-        j.setMapOutputValueClass(FloatWritable.class);
+        j.setMapOutputValueClass(AverageExportTypeWritable.class);
 
         j.setOutputKeyClass(Text.class);
         j.setOutputValueClass(FloatWritable.class);
-
 
         FileInputFormat.addInputPath(j, input);
         FileOutputFormat.setOutputPath(j, output);
@@ -43,7 +44,7 @@ public class Teste {
         System.exit(j.waitForCompletion(true) ? 0 : 1);
     }
 
-    public static class Map extends Mapper<LongWritable, Text, Text, FloatWritable> {
+    public static class Map extends Mapper<LongWritable, Text, Text, AverageExportTypeWritable> {
         public void map(LongWritable key, Text value, Context con)
                 throws IOException, InterruptedException {
             String linha = value.toString();
@@ -52,28 +53,30 @@ public class Teste {
             }
             String[] colunas = linha.split(";");
             Text pais = new Text(colunas[0]);
-            Text ano = new Text(colunas[1]);
+            String tipo = colunas[2];
+            String exportacao = colunas[4];
 
-            if (!pais.equals(new Text("Brazil")) || !ano.equals(new Text("2016"))) {
+            if (!pais.equals(new Text("Brazil")) || tipo.equals("TOTAL") || exportacao.equals("Export")) {
                 return;
             }
             float valor = Float.parseFloat(colunas[5]);
-            System.out.println("valor" + valor);
-            con.write(pais, new FloatWritable(valor));
+            con.write(new Text(colunas[1]), new AverageExportTypeWritable(1,valor));
         }
     }
 
-    public static class Reduce extends Reducer<Text, FloatWritable, Text, FloatWritable> {
-        public void reduce(Text key, Iterable<FloatWritable> values, Context con)
+    public static class Reduce extends Reducer<Text, AverageExportTypeWritable, Text, Text> {
+        public void reduce(Text key, Iterable<AverageExportTypeWritable> values, Context con)
                 throws IOException, InterruptedException {
-            float valor = 0;
-            for (FloatWritable val : values) {
-                valor = val.get();
-                con.write(key, new FloatWritable(valor));
+            int somaN = 0;
+            float somaValor = 0;
+            for (AverageExportTypeWritable obj : values) {
+                somaN += obj.getN();
+                somaValor += obj.getValor();
             }
-
+            float media = somaValor / somaN;
+            DecimalFormat df = new DecimalFormat("#");
+            String mediaFormatada = df.format(media);
+            con.write(key, new Text(mediaFormatada));
         }
     }
-
-
 }
