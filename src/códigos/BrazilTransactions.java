@@ -22,7 +22,7 @@ public class BrazilTransactions {
         String[] files = new GenericOptionsParser(c, args).getRemainingArgs();
 
         Path input = new Path("in/operacoes_comerciais_inteira.csv");
-        Path output = new Path("output/transacoes-brasil.txt");
+        Path output = new Path("output/1transacoes-brasil.txt");
 
         Job j = new Job(c, "BrazilTransactions");
 
@@ -49,6 +49,12 @@ public class BrazilTransactions {
             String[] colunas = linha.split(";");
             Text pais = new Text(colunas[0]);
             Text tipo = new Text(colunas[2]);
+
+            for (int i = 0; i <= 8; i++) {
+                if (colunas[i].isEmpty()) {
+                    return;
+                }
+            }
 
             if (!pais.equals(new Text("Brazil")) || tipo.equals(new Text("TOTAL"))) {
                 return;

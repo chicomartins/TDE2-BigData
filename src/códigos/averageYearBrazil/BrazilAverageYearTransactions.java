@@ -23,7 +23,7 @@ public class BrazilAverageYearTransactions {
         String[] files = new GenericOptionsParser(c, args).getRemainingArgs();
 
         Path input = new Path("in/operacoes_comerciais_inteira.csv");
-        Path output = new Path("output/transacoes-media-ano.txt");
+        Path output = new Path("output/5transacoes-media-ano.txt");
 
         Job j = new Job(c, "BrazilAverageYearTransactions");
 
@@ -51,6 +51,13 @@ public class BrazilAverageYearTransactions {
                 return;
             }
             String[] colunas = linha.split(";");
+
+            for (int i = 0; i <= 8; i++) {
+                if (colunas[i].isEmpty()) {
+                    return;
+                }
+            }
+
             Text pais = new Text(colunas[0]);
             String tipo = colunas[2];
 

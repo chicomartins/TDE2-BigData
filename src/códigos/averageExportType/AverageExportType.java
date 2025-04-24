@@ -24,7 +24,7 @@ public class AverageExportType {
         String[] files = new GenericOptionsParser(c, args).getRemainingArgs();
 
         Path input = new Path("in/operacoes_comerciais_inteira.csv");
-        Path output = new Path("output/media-exportacoes-brasil.txt");
+        Path output = new Path("output/7media-exportacoes-brasil.txt");
 
         Job j = new Job(c, "AverageExportType");
 
@@ -52,6 +52,13 @@ public class AverageExportType {
                 return;
             }
             String[] colunas = linha.split(";");
+
+            for (int i = 0; i <= 8; i++) {
+                if (colunas[i].isEmpty()) {
+                    return;
+                }
+            }
+
             Text pais = new Text(colunas[0]);
             String tipo = colunas[2];
             String exportacao = colunas[4];

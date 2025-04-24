@@ -22,7 +22,7 @@ public class YearTransactions {
         String[] files = new GenericOptionsParser(c, args).getRemainingArgs();
 
         Path input = new Path("in/operacoes_comerciais_inteira.csv");
-        Path output = new Path("output/transacoes-ano.txt");
+        Path output = new Path("output/2transacoes-ano.txt");
 
         Job j = new Job(c, "YearTransactions");
 
@@ -48,6 +48,12 @@ public class YearTransactions {
             }
 
             String[] colunas = linha.split(";");
+
+            for (int i = 0; i <= 8; i++) {
+                if (colunas[i].isEmpty()) {
+                    return;
+                }
+            }
 
             String tipo = colunas[2];
             if (tipo.equals("TOTAL")) {

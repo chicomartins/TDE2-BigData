@@ -22,7 +22,7 @@ public class CheapExpensiveTransactions {
         String[] files = new GenericOptionsParser(c, args).getRemainingArgs();
 
         Path input = new Path("in/operacoes_comerciais_inteira.csv");
-        Path output = new Path("output/transacoes-barata-cara.txt");
+        Path output = new Path("output/6transacoes-barata-cara.txt");
 
         Job j = new Job(c, "extremeValues");
 
@@ -49,6 +49,13 @@ public class CheapExpensiveTransactions {
             if (linha.startsWith("c")) return;
 
             String[] colunas = linha.split(";");
+
+            for (int i = 0; i <= 8; i++) {
+                if (colunas[i].isEmpty()) {
+                    return;
+                }
+            }
+
             String pais = colunas[0];
             String ano = colunas[1];
             String tipo = colunas[2];
